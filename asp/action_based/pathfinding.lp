@@ -1,43 +1,42 @@
-%%% WAITING
-% before the train is READY, it has to choose wait
-do(ID,wait,0) :- train(ID).
-do(ID,wait,T) :- start(ID, _, DepartureTime, _), T = 1..(DepartureTime-1), DepartureTime > 0.
+global(100). dir(n;s;e;w). action_type(move_left;move_right;move_forwards;wait).
 
-%%% READY
-% select an idle move: wait or spawn - once it spawns, it becomes ACTIVE
-ready(ID,T) :- start(ID, _, T, _).
-do(ID,spawn,Ready) :- ready(ID,Ready), Ready > 0.
+time(0..T) :- global(T).
 
-% special case that Ready at 0 gets delayed by one time step
-do(ID,spawn,1) :- ready(ID,0).
+at(ID,X,Y,T,Dir) :- move(ID,X,Y,T,Dir).
+at(ID,X,Y,T,Dir) :- start(ID,(X,Y),T,Dir).
+goal(ID,T) :- at(ID,X,Y,T,_), end(ID,(X,Y),T).
 
-%%% ACTIVE
-% it has selected forward and can then choose forward, left, or right
-active(ID,T+1) :- do(ID,spawn,T).
-at(ID,(X,Y),D,T) :- start(ID, (X,Y), _, D), active(ID,T).
-timeframe(Start,End) :- active(ID,Start), end(ID,_,End).
-
-% choose cells
-{ do(ID,M,T) : move(M) } = 1 :- timeframe(Start,End), T=Start..End, at(ID, _, _, T), not done(ID,T-1).
-at(ID,(X+Dx,Y+Dy),D,T) :- at(ID,(X,Y),D_old,T-1), do(ID,M,T-1), offset((D_old,M),(Dx,Dy),D).
-
-%%% DONE
-% it has reached its destination and can no longer make decisions
-done(ID,T) :- at(ID,(X,Y),_,T), end(ID,(X,Y),_).
+% check if a train has reached its goal
+reached(ID,T) :- goal(ID,T2), time(T), train(ID), T > T2.
 
 
-% constraints
-% every train must reach its destination
-:- train(ID), not done(ID,_).
+% no moving straight on a turn
+:- at(ID,X,Y,T,Dir), cell((X,Y),4068), move(ID,X2,Y2,T+1,Dir).
+:- at(ID,X,Y,T,Dir), cell((X,Y),16386), move(ID,X2,Y2,T+1,Dir).
+:- at(ID,X,Y,T,Dir), cell((X,Y),72), move(ID,X2,Y2,T+1,Dir).
+:- at(ID,X,Y,T,Dir), cell((X,Y),2064), move(ID,X2,Y2,T+1,Dir).
 
-% must be a valid cell
-:- at(_, (X,Y), _, _), not cell((X,Y), _).
+% no moving straight on a symmetrical switch
+:- at(ID,X,Y,T,Dir), cell((X,Y),20994), move(ID,X2,Y2,T+1,Dir).
+:- at(ID,X,Y,T,Dir), cell((X,Y),2136), move(ID,X2,Y2,T+1,Dir).
+:- at(ID,X,Y,T,Dir), cell((X,Y),6672), move(ID,X2,Y2,T+1,Dir).
+:- at(ID,X,Y,T,Dir), cell((X,Y),16458), move(ID,X2,Y2,T+1,Dir).
 
-% no illegal transition
-:- do(ID,M,T), at(ID,(X,Y),D,T), cell((X,Y), Track), not transition(Track,(D,M)).
+% force the trains to reach its destination
+:- end(ID,(X,Y),_), not goal(ID,_).
 
-% no swap conflict
-:- at(A, (X,Y), _, T), at(B, (X,Y), _, T+1), A!=B.
+% no two trains on the same cell (at )the same time (no collisions)
+:- at(ID1,X,Y,T,_), at(ID2,X,Y,T,_), ID1!=ID2.
 
-% no vertex conflict
-:- at(A, (X,Y), _, T), at(B, (X,Y), _, T), A!=B.
+% prefer the solution with the least possible actions
+#minimize {1,ID,A,T : action(train(ID),A,T)}.
+
+% prefer the solution with the least possible time (still dont know if this really works)
+%#minimize {1,T : time(T)}.
+
+
+%#show at/5.
+#show goal/2.
+#show action/3.
+%#show reached/2
+
