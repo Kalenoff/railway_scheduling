@@ -1,30 +1,18 @@
 % input (environment):
 
 train(1).
-train(2).
 start(1, (2, 0), 0, east).
-start(2, (0, 0), 0, east).
-end(1, (0, 0), 7).
-end(2, (0, 5), 9).
+end(1, (0, 1), 3).
 
-cell((0,0), 1025).
-cell((0,1), 1025).
-cell((0,2), 3089).
-cell((0,3), 1025).
-cell((0,4), 1025).
-cell((0,5), 1025).
-cell((1,0), 0).
-cell((1,1), 0).
-cell((1,2), 32800).
-cell((1,3), 0).
-cell((1,4), 0).
-cell((1,5), 0).
-cell((2,0), 1025).
-cell((2,1), 1025).
-cell((2,2), 4608).
-cell((2,3), 0).
-cell((2,4), 0).
-cell((2,5), 0).
+cell((0, 0), 72).
+cell((0, 1), 38433).
+cell((0, 2), 2064).
+cell((1, 0), 38505).
+cell((1, 1), 17411).
+cell((1, 2), 17411).
+cell((2, 0), 20994).
+cell((2, 1), 2064).
+cell((2, 2), 0).
 
 % conversion of the input to 1d positional encoding:
 
@@ -96,9 +84,31 @@ path(east, POSITION, east, POSITION - WIDTH) :- cell_flat(POSITION, 5633), grid_
 path(east, POSITION, south, POSITION + 1) :- cell_flat(POSITION, 5633), cell_flat((POSITION + 1), TYPE), TYPE != 0.
 path((north; west), POSITION, west, POSITION - 1) :- cell_flat(POSITION, 5633), cell_flat((POSITION - 1), TYPE), TYPE != 0.
 
+path(south, POSITION, south, POSITION - WIDTH) :- cell_flat(POSITION, 38433), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
+path(north, POSITION, north, POSITION + WIDTH) :- cell_flat(POSITION, 38433), grid_size(_, WIDTH), cell_flat((POSITION + WIDTH), TYPE), TYPE != 0.
+path((north; west), POSITION, east, POSITION - 1) :- cell_flat(POSITION, 38433), cell_flat((POSITION - 1), TYPE), TYPE != 0.
+path(east, POSITION, south, POSITION - WIDTH) :- cell_flat(POSITION, 38433), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
+
+path(south, POSITION, south, POSITION - WIDTH) :- cell_flat(POSITION, 38505), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
+path(south, POSITION, east, POSITION + 1) :- cell_flat(POSITION, 38505), cell_flat((POSITION + 1), TYPE), TYPE != 0.
+path(north, POSITION, north, POSITION + WIDTH) :- cell_flat(POSITION, 38505), grid_size(_, WIDTH), cell_flat((POSITION + WIDTH), TYPE), TYPE != 0.
+path(north, POSITION, west, POSITION - 1) :- cell_flat(POSITION, 38505), cell_flat((POSITION - 1), TYPE), TYPE != 0.
+path(west, POSITION, north, POSITION + WIDTH) :- cell_flat(POSITION, 38505), grid_size(_, WIDTH), cell_flat((POSITION + WIDTH), TYPE), TYPE != 0.
+path(west, POSITION, west, POSITION - 1) :- cell_flat(POSITION, 38505), cell_flat((POSITION - 1), TYPE), TYPE != 0.
+path(east, POSITION, south, POSITION - WIDTH) :- cell_flat(POSITION, 38505), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
+path(east, POSITION, east, POSITION + 1) :- cell_flat(POSITION, 38505), cell_flat((POSITION + 1), TYPE), TYPE != 0.
+
+path(west, POSITION, west, POSITION - 1) :- cell_flat(POSITION, 17411), cell_flat((POSITION - 1), TYPE), TYPE != 0.
+path(west, POSITION, south, POSITION - WIDTH) :- cell_flat(POSITION, 17411), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
+path((east; north), POSITION, east, POSITION + 1) :- cell_flat(POSITION, 17411), cell_flat((POSITION + 1), TYPE), TYPE != 0.
+
+path(north, POSITION, west, POSITION - 1) :- cell_flat(POSITION, 20994), cell_flat((POSITION - 1), TYPE), TYPE != 0.
+path(north, POSITION, east, POSITION + 1) :- cell_flat(POSITION, 20994), cell_flat((POSITION + 1), TYPE), TYPE != 0.
+path((east; west), POSITION, south, POSITION - WIDTH) :- cell_flat(POSITION, 20994), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
+
 % generating solution candidates:
 
-1 { transition(TRAIN, MOMENT, FROM, TO) : path(_, FROM, _, TO) } 1 :- train(TRAIN), moment(TRAIN, MOMENT).
+1 { transition(TRAIN, MOMENT, FROM_CELL, TO_CELL) : path(FROM_DIR, FROM_CELL, TO_DIR, TO_CELL) } 1 :- train(TRAIN), moment(TRAIN, MOMENT).
 
 % constraints:
 
@@ -140,7 +150,7 @@ action(TRAIN, MOMENT, move_forward) :- transition(TRAIN, MOMENT, POS_1, POS_2), 
 
 % displaying the output:
 
-#show action/3.
+% #show action/3.
 #show transition/4.
 % #show path/4.
 % #show end_flat/3.
