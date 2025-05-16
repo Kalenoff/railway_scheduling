@@ -1,30 +1,22 @@
 % input (environment):
 
 train(1).
-train(2).
-start(1, (2, 0), 0, east).
-start(2, (0, 0), 0, east).
-end(1, (0, 0), 6).
-end(2, (0, 5), 5).
+start(1, (1, 0), 0, east).
+end(1, (1, 2), 2).
 
-cell((0,0), 1025).
-cell((0,1), 1025).
-cell((0,2), 3089).
-cell((0,3), 1025).
-cell((0,4), 1025).
-cell((0,5), 1025).
-cell((1,0), 0).
-cell((1,1), 0).
-cell((1,2), 32800).
-cell((1,3), 0).
-cell((1,4), 0).
-cell((1,5), 0).
-cell((2,0), 1025).
-cell((2,1), 1025).
-cell((2,2), 4608).
-cell((2,3), 0).
-cell((2,4), 0).
-cell((2,5), 0).
+train(2).
+start(2, (0, 1), 0, east).
+end(2, (2, 1), 4).
+
+cell((0, 0), 0).
+cell((0,1), 32800).
+cell((0,2), 0).
+cell((1,0), 1025).
+cell((1,1), 33825).
+cell((1,2), 1025).
+cell((2,0), 0).
+cell((2,1), 32800).
+cell((2,2), 0).
 
 % conversion of the input to 1d positional encoding:
 
@@ -102,7 +94,7 @@ path((north;west), POSITION, move_forward, west, POSITION - 1) :- cell_flat(POSI
 
 path(north, POSITION, turn_left, west, POSITION - 1) :- cell_flat(POSITION, 20994), cell_flat(POSITION - 1, TYPE), TYPE != 0.
 path(north, POSITION, turn_right, east, POSITION + 1) :- cell_flat(POSITION, 20994), cell_flat(POSITION + 1, TYPE), TYPE != 0.
-path((east;west), POSITION, move_forward, east, POSITION - WIDTH) :- cell_flat(POSITION, 20994), grid_size(_, WIDTH), cell_flat(POSITION - WIDTH, TYPE), TYPE != 0.
+path((east;west), POSITION, move_forward, south, POSITION - WIDTH) :- cell_flat(POSITION, 20994), grid_size(_, WIDTH), cell_flat(POSITION - WIDTH, TYPE), TYPE != 0.
 
 path(south, POSITION, move_forward, south, POSITION - WIDTH) :- cell_flat(POSITION, 38505), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
 path(south, POSITION, turn_left, east, POSITION + 1) :- cell_flat(POSITION, 38505), cell_flat((POSITION + 1), TYPE), TYPE != 0.
@@ -112,6 +104,17 @@ path(west, POSITION, turn_right, north, POSITION + WIDTH) :- cell_flat(POSITION,
 path(west, POSITION, move_forward, west, POSITION - 1) :- cell_flat(POSITION, 38505), cell_flat((POSITION - 1), TYPE), TYPE != 0.
 path(east, POSITION, turn_right, south, POSITION - WIDTH) :- cell_flat(POSITION, 38505), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
 path(east, POSITION, move_forward, east, POSITION + 1) :- cell_flat(POSITION, 38505), cell_flat((POSITION + 1), TYPE), TYPE != 0.
+
+path(west, POSITION, move_forward, west, POSITION - 1) :- cell_flat(POSITION, 17411), cell_flat((POSITION - 1), TYPE), TYPE != 0.
+path(west, POSITION, turn_left, south, POSITION - WIDTH) :- cell_flat(POSITION, 17411), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
+path((east;north), POSITION, move_forward, east, POSITION + 1) :- cell_flat(POSITION, 17411), cell_flat((POSITION + 1), TYPE), TYPE != 0.
+
+path(south, POSITION, move_forward, south, POSITION - WIDTH) :- cell_flat(POSITION, 38433), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0. 
+path(north, POSITION, move_forward, north, POSITION + WIDTH) :- cell_flat(POSITION, 38433), grid_size(_, WIDTH), cell_flat((POSITION + WIDTH), TYPE), TYPE != 0. 
+path(north, POSITION, turn_right, west, POSITION - 1) :- cell_flat(POSITION, 38433), cell_flat((POSITION - 1), TYPE), TYPE != 0.
+path(east, POSITION, move_forward, east, POSITION + 1) :- cell_flat(POSITION, 38433), cell_flat((POSITION + 1), TYPE), TYPE != 0.
+path(east, POSITION, turn_right, east, POSITION - WIDTH) :- cell_flat(POSITION, 38433), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
+path(west, POSITION, move_forward, west, POSITION - 1) :- cell_flat(POSITION, 38433), cell_flat((POSITION - 1), TYPE), TYPE != 0.
 
 % generating solution candidates over all possible routes and input train(s) / time:
 
@@ -129,30 +132,28 @@ path(east, POSITION, move_forward, east, POSITION + 1) :- cell_flat(POSITION, 38
    transition(TRAIN, MOMENT+1, _, IN_DIR, _, _, _),
    TO_DIR != IN_DIR.
 
-% 2. The train must not go back:
-
-% 3. The train must arrive at the destination:
+% 2. The train must arrive at the destination:
 
 :- transition(TRAIN,MOMENT,_,_,_,TO_POS,_),
    end_flat(TRAIN, ARRIVAL_POS, ARRIVAL_TIME),
    MOMENT == ARRIVAL_TIME-1,
    TO_POS != ARRIVAL_POS.
 
-% 4. The train must start from the departure position:
+% 3. The train must start from the departure position:
 
 :- start_flat(TRAIN, DEPARTURE_POS, DEPARTURE_TIME, _),
    transition(TRAIN, MOMENT, FROM_POS, IN_DIR, _, _, _),
    FROM_POS != DEPARTURE_POS,
    MOMENT == DEPARTURE_TIME.
 
-% 5. The train must be directed correctly at the start:
+% 4. The train must be directed correctly at the start:
 
 :- start_flat(TRAIN, _, DEPARTURE_TIME, DEPARTURE_DIR), 
    transition(TRAIN, MOMENT, _, IN_DIR, _, _, _),
    IN_DIR != DEPARTURE_DIR,
    MOMENT == DEPARTURE_TIME.
 
-% 6. Addressing jumping over the grid problem:
+% 5. Addressing jumping over the grid problem:
 
 :- transition(_, _, FROM_POS, _, _, TO_POS, _),
    grid_size(_, WIDTH),
@@ -165,8 +166,8 @@ action(TRAIN, MOMENT, ACTION) :- transition(TRAIN,MOMENT, _, _, ACTION, _, _).
 
 % displaying the output:
 
-% #show action/3.
-#show transition/7.
+#show action/3.
+% #show transition/7.
 % #show path/5.
 % #show end_flat/3.
 % #show grid_size/2.
