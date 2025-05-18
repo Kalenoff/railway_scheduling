@@ -1,5 +1,3 @@
-% do one action per timestep for each train that hasn't reached its goal
-1 {action(train(ID),A,T) : action_type(A)} 1 :- train(ID), time(T), not goal(ID,T), not reached(ID,T).
 
 % movement rules
 % logic for moving forwards on a horizontal track facing east and west
@@ -30,8 +28,8 @@ move(ID,X,Y-1,T+1,w) :- action(train(ID), move_forwards,T), at(ID,X,Y,T,s), not 
 % logic for waiting on any direction and track
 move(ID,X,Y,T+1,Dir) :- action(train(ID),wait,T), at(ID,X,Y,T,Dir), not goal(ID,T), cell((X,Y),_), time(T).
 
-% you are not allowed to wait if you can do anything else (still dont know if this really works)
-:- action(train(ID),wait,T), at(ID,X,Y,T,Dir), not goal(ID,T), cell((X,Y),_), time(T), action(A), A!=wait.
+% you are not allowed to wait if another move is possible (still dont know if this really works)
+%:- action(train(ID),wait,T), at(ID,X,Y,T,Dir), not goal(ID,T), cell((X,Y),_), time(T), action(A), A!=wait.
 
 % symmetrical switch
 % logic for symmetrical switch facing north track 20994
