@@ -1,4 +1,3 @@
-
 % movement rules
 % logic for moving forwards on a horizontal track facing east and west
 move(ID,X,Y+1,T+1,e) :- action(train(ID), move_forwards,T), at(ID,X,Y,T,e), not goal(ID,T), cell((X,Y),1025), cell((X,Y+1),_), time(T), dir(e).
@@ -7,6 +6,7 @@ move(ID,X,Y-1,T+1,w) :- action(train(ID), move_forwards,T), at(ID,X,Y,T,w), not 
 % logic for moving forwards on a vertical track facing north and south
 move(ID,X-1,Y,T+1,n) :- action(train(ID), move_forwards,T), at(ID,X,Y,T,n), not goal(ID,T), cell((X,Y),32800), cell((X-1,Y),_), time(T), dir(n).
 move(ID,X+1,Y,T+1,s) :- action(train(ID), move_forwards,T), at(ID,X,Y,T,s), not goal(ID,T), cell((X,Y),32800), cell((X+1,Y),_), time(T), dir(s).
+
 
 % turns
 % move left and right while facing east
@@ -25,11 +25,6 @@ move(ID,X,Y+1,T+1,e) :- action(train(ID), move_forwards,T), at(ID,X,Y,T,n), not 
 move(ID,X,Y+1,T+1,e) :- action(train(ID), move_forwards,T), at(ID,X,Y,T,s), not goal(ID,T), cell((X,Y),72), cell((X,Y+1),_), time(T), dir(e).
 move(ID,X,Y-1,T+1,w) :- action(train(ID), move_forwards,T), at(ID,X,Y,T,s), not goal(ID,T), cell((X,Y),2064), cell((X,Y-1),_), time(T), dir(w).
 
-% logic for waiting on any direction and track
-move(ID,X,Y,T+1,Dir) :- action(train(ID),wait,T), at(ID,X,Y,T,Dir), not goal(ID,T), cell((X,Y),_), time(T).
-
-% you are not allowed to wait if another move is possible (still dont know if this really works)
-%:- action(train(ID),wait,T), at(ID,X,Y,T,Dir), not goal(ID,T), cell((X,Y),_), time(T), action(A), A!=wait.
 
 % symmetrical switch
 % logic for symmetrical switch facing north track 20994
