@@ -1,27 +1,122 @@
 % input (environment):
 
 train(1).
-start(1, (0, 0), 0, north).
-end(1, (2, 0), 3).
+start(1, (6, 8), 2, north).
+end(1, (3, 3), 14).
 
-cell((0, 0), 32800).
+train(2).
+start(2, (1, 6), 0, west).
+end(2, (7, 1), 17).
+
+cell((0, 0), 0).
 cell((0, 1), 0).
 cell((0, 2), 0).
-cell((1, 0), 32800).
-cell((1, 1), 0).
-cell((1, 2), 0).
-cell((2, 0), 32800).
-cell((2, 1), 0).
+cell((0, 3), 0).
+cell((0, 4), 0).
+cell((0, 5), 0).
+cell((0, 6), 0).
+cell((0, 7), 0).
+cell((0, 8), 0).
+cell((0, 9), 0).
+cell((1, 0), 0).
+cell((1, 1), 72).
+cell((1, 2), 1025).
+cell((1, 3), 2064).
+cell((1, 4), 0).
+cell((1, 5), 72).
+cell((1, 6), 1025).
+cell((1, 7), 1025).
+cell((1, 8), 2064).
+cell((1, 9), 0).
+cell((2, 0), 0).
+cell((2, 1), 32800).
 cell((2, 2), 0).
+cell((2, 3), 49186).
+cell((2, 4), 1025).
+cell((2, 5), 37408).
+cell((2, 6), 0).
+cell((2, 7), 0).
+cell((2, 8), 32800).
+cell((2, 9), 0).
+cell((3, 0), 0).
+cell((3, 1), 16386).
+cell((3, 2), 2064).
+cell((3, 3), 32800).
+cell((3, 4), 0).
+cell((3, 5), 16386).
+cell((3, 6), 2064).
+cell((3, 7), 0).
+cell((3, 8), 32800).
+cell((3, 9), 0).
+cell((4, 0), 0).
+cell((4, 1), 0).
+cell((4, 2), 16386).
+cell((4, 3), 34864).
+cell((4, 4), 0).
+cell((4, 5), 0).
+cell((4, 6), 32872).
+cell((4, 7), 1025).
+cell((4, 8), 4608).
+cell((4, 9), 0).
+cell((5, 0), 0).
+cell((5, 1), 72).
+cell((5, 2), 1025).
+cell((5, 3), 37408).
+cell((5, 4), 0).
+cell((5, 5), 72).
+cell((5, 6), 20994).
+cell((5, 7), 1025).
+cell((5, 8), 2064).
+cell((5, 9), 0).
+cell((6, 0), 0).
+cell((6, 1), 32800).
+cell((6, 2), 0).
+cell((6, 3), 49186).
+cell((6, 4), 1025).
+cell((6, 5), 34864).
+cell((6, 6), 0).
+cell((6, 7), 0).
+cell((6, 8), 32800).
+cell((6, 9), 0).
+cell((7, 0), 0).
+cell((7, 1), 32800).
+cell((7, 2), 0).
+cell((7, 3), 32800).
+cell((7, 4), 0).
+cell((7, 5), 32800).
+cell((7, 6), 0).
+cell((7, 7), 0).
+cell((7, 8), 32800).
+cell((7, 9), 0).
+cell((8, 0), 0).
+cell((8, 1), 16386).
+cell((8, 2), 1025).
+cell((8, 3), 4608).
+cell((8, 4), 0).
+cell((8, 5), 16386).
+cell((8, 6), 1025).
+cell((8, 7), 1025).
+cell((8, 8), 4608).
+cell((8, 9), 0).
+cell((9, 0), 0).
+cell((9, 1), 0).
+cell((9, 2), 0).
+cell((9, 3), 0).
+cell((9, 4), 0).
+cell((9, 5), 0).
+cell((9, 6), 0).
+cell((9, 7), 0).
+cell((9, 8), 0).
+cell((9, 9), 0).
+
+% a bigger 10 x 10 environment
 
 % conversion of the input to 1d positional encoding:
 
 grid_size(ROWS, COLUMNS) :- ROWS = #count{VAL : cell((VAL, _), _)}, COLUMNS = #count{VAL : cell((_, VAL), _)}.
-
 cell_flat(Y * WIDTH + X, TYPE) :- cell((Y, X), TYPE), grid_size(_, WIDTH).
 
 start_flat(TRAIN, Y * WIDTH + X, DEPARTURE_TIME, DIRECTION) :- start(TRAIN, (Y, X), DEPARTURE_TIME, DIRECTION), grid_size(_, WIDTH).
-
 end_flat(TRAIN, Y * WIDTH + X, ARRIVAL_TIME) :- end(TRAIN, (Y, X), ARRIVAL_TIME), grid_size(_, WIDTH).
 
 % decreasing the search space by describing the routes as tightly as possible:
@@ -77,6 +172,14 @@ path((east;west), POSITION, move_forward, south, POSITION - WIDTH) :- cell_flat(
 path(west, POSITION, move_forward, west, POSITION - 1) :- cell_flat(POSITION, 17411), cell_flat((POSITION - 1), TYPE), TYPE != 0.
 path(west, POSITION, turn_left, south, POSITION - WIDTH) :- cell_flat(POSITION, 17411), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
 path((east;north), POSITION, move_forward, east, POSITION + 1) :- cell_flat(POSITION, 17411), cell_flat((POSITION + 1), TYPE), TYPE != 0.
+
+path(north, POSITION, move_forward, north, POSITION + WIDTH) :- cell_flat(POSITION, 37408), grid_size(_, WIDTH), cell_flat(POSITION + WIDTH, TYPE), TYPE != 0.
+path(north, POSITION, turn_left, west, POSITION - 1) :- cell_flat(POSITION, 37408), cell_flat(POSITION - 1, TYPE), TYPE != 0.
+path((south;east), POSITION, move_forward, south, POSITION - WIDTH) :- cell_flat(POSITION, 37408), grid_size(_, WIDTH), cell_flat(POSITION - WIDTH, TYPE), TYPE != 0.
+
+path(north, POSITION, move_forward, north, POSITION + WIDTH):- cell_flat(POSITION, 49186), grid_size(_, WIDTH), cell_flat(POSITION + WIDTH, TYPE), TYPE != 0.
+path(north, POSITION, turn_right, east, POSITION + 1):- cell_flat(POSITION, 49186), cell_flat(POSITION + 1, TYPE), TYPE != 0.
+path((south; west), POSITION, move_forward, south, POSITION - WIDTH):- cell_flat(POSITION, 49186), grid_size(_, WIDTH), cell_flat(POSITION - WIDTH, TYPE), TYPE != 0.
 
 path(north, POSITION, move_forward, north, POSITION + WIDTH) :- cell_flat(POSITION, 33825), grid_size(_, WIDTH), cell_flat((POSITION + WIDTH), TYPE), TYPE != 0.
 path(south, POSITION, move_forward, south, POSITION - WIDTH) :- cell_flat(POSITION, 33825), grid_size(_, WIDTH), cell_flat((POSITION - WIDTH), TYPE), TYPE != 0.
@@ -158,8 +261,8 @@ action(TRAIN, MOMENT, ACTION) :- transition(TRAIN,MOMENT, _, _, ACTION, _, _).
 % displaying the output:
 
 % #show action/3.
-% #show transition/7.
-#show path/5.
+#show transition/7.
+% #show path/5.
 % #show end_flat/3.
 % #show grid_size/2.
 % #show cell_flat/2.

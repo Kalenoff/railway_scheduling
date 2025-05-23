@@ -3,7 +3,7 @@ start(1, (6, 1), 0, south).
 end(1, (0, 1), 6).
 
 train(2).
-start(2, (6, 0), 0, west).
+start(2, (6, 0), 0, east).
 end(2, (0, 2), 12).
 
 cell((0,0), 0).
