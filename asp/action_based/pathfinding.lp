@@ -27,7 +27,7 @@ reached(ID,T) :- goal(ID,T2), time(T), train(ID), T > T2.
 % no two trains on the same cell (at )the same time (no collisions)
 :- at(ID1,X,Y,T,_), at(ID2,X,Y,T,_), ID1!=ID2.
 
-% TODO implement swapping conflict constraint
+% TODO swapping conflict constraint
 :- at(ID1,X1,Y1,T,_), at(ID2,X2,Y2,T,_), at(ID1,X2,Y2,T+1,_), at(ID2,X1,Y1,T+1,_), ID1!=ID2.
 
 % prefer the solution with the least possible actions
