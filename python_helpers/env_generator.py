@@ -1,7 +1,7 @@
-file_path = r"C:\Users\roman\Documents\Code\ASP\railway_scheduling\asp\prototyping\environments\many_trains\ten_by_ten.lp"
+file_path = r"C:\Users\roman\Documents\Code\ASP\railway_scheduling\asp\prototyping\environments\many_trains\twenty_by_twenty.lp"
 
-columns = [y for y in range(0,10)]
-rows = [x for x in range(0,10)]
+columns = [y for y in range(0,20)]
+rows = [x for x in range(0,20)]
 
 cells = ""
 
