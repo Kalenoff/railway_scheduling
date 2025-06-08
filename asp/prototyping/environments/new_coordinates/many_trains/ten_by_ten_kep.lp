@@ -1,6 +1,18 @@
 train(0).
-start(0, (2, 5), 0, south).
-end(0, (7, 5), 7).
+start(0, (3, 8), 0, north).
+end(0, (6, 3), 12).
+
+train(1).
+start(1, (8, 6), 0, west).
+end(1, (2, 1), 17).
+
+train(2).
+start(2, (5, 8), 0, north).
+end(2, (1, 6), 9).
+
+train(3).
+start(3, (6, 5), 0, north).
+end(3, (4, 7), 4).
 
 cell((9, 0), 0).
 cell((9, 1), 0).

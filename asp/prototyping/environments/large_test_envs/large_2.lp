@@ -1,9 +1,9 @@
 % clingo representation of a Flatland environment
 % height: 30, width: 30, agents: 2
 
-train(0). start(0,(8,24),2,w). end(0,(25,22),98).
+train(0). start(0,(8,24),2,west). end(0,(25,22),98).
 
-train(1). start(1,(24,22),8,e). end(1,(9,24),57).
+train(1). start(1,(24,22),8,east). end(1,(9,24),57).
 cell((0,0), 0).
 cell((0,1), 0).
 cell((0,2), 0).
