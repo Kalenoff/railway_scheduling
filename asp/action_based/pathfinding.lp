@@ -2,9 +2,8 @@ dir(n;s;e;w). action_type(move_left;move_right;move_forwards;wait).
 
 time(0..T) :- global(T).
 
-% bind the global maxtime to the latest destination time
-global(Max) :- Max = #max { T : end(_,_,T) }.
-
+% bind the global maxtime to the latest arrival time
+global(Max) :- Max = #max { T : end(_,(_,_),T) }.
 :- train(ID), not goal(ID,_).
 
 at(ID,X,Y,T,Dir) :- move(ID,X,Y,T,Dir).
@@ -52,7 +51,7 @@ straight_or_turn(2064).
 :- at(ID,X,Y,T,Dir), cell((X,Y),6672), move(ID,X2,Y2,T+1,Dir).
 :- at(ID,X,Y,T,Dir), cell((X,Y),16458), move(ID,X2,Y2,T+1,Dir).
 
-% no two trains on the same cell (at )the same time (no collisions)
+% no two trains on the same cell at the same time (no collisions)
 :- at(ID1,X,Y,T,_), at(ID2,X,Y,T,_), ID1!=ID2.
 
 % swapping conflict constraint
@@ -61,9 +60,10 @@ straight_or_turn(2064).
 % prefer the solution with the least possible actions
 %#minimize {1,ID,A,T : action(train(ID),A,T)}.
 
-
 #show at/5.
 #show goal/2.
 #show action/3.
 %#show reached/2.
 %#show time/1.
+
+% did not pass collision 03 02, waiting rule should be modified
