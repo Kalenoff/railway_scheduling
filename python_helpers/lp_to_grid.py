@@ -3,14 +3,27 @@ import matplotlib.image as mpimg
 import re
 import os
 
-input_env = """cell((0, 0), 0).
-cell((0, 1), 32800).
-cell((0, 2), 32800).
-cell((0, 3), 0).
-cell((1, 0), 1025).
-cell((1, 1), 1097).
-cell((1, 2), 3089).
-cell((1, 3), 1025)"""
+input_env = """cell((6,0), 0).
+cell((6,1), 32800).
+cell((6,2), 72).
+cell((5,0), 72).
+cell((5,1), 33825).
+cell((5,2), 4608).
+cell((4,0), 32800).
+cell((4,1), 32800).
+cell((4,2), 0).
+cell((3,0), 16386).
+cell((3,1), 33825).
+cell((3,2), 2064).
+cell((2,0), 0).
+cell((2,1), 32800).
+cell((2,2), 32800).
+cell((1,0), 72).
+cell((1,1), 33825).
+cell((1,2), 4608).
+cell((0,0), 4608).
+cell((0,1), 32800).
+cell((0,2), 0)."""
 
 
 def plot_grid_with_values(pos_type_map):
