@@ -10,34 +10,34 @@ at(ID,X,Y,T,Dir) :- move(ID,X,Y,T,Dir).
 at(ID,X,Y,T,Dir) :- start(ID,(X,Y),T,Dir).
 goal(ID,T) :- at(ID,X,Y,T,_), end(ID,(X,Y),MaxT), T <= MaxT. 
 
+% whenever a train waits, it stays in the same spot as in the last timestep
+at(ID,X,Y,T+1,Dir) :- action(train(ID),wait,T), at(ID,X,Y,T,Dir), cell((X,Y),_), time(T).
+
+% offsets for each direction
+offset(n,-1,0).
+offset(n,-1,-1).
+offset(n,-1,1).
+
+offset(s,1,0).
+offset(s,1,-1).
+offset(s,1,1).
+
+offset(e,0,1).
+offset(e,-1,1).
+offset(e,1,1).
+
+offset(w,0,-1).
+offset(w,-1,-1).
+offset(w,1,-1).
+
+% a train is not allowed to wait if none of the offsets for the given direction are occupied by trains with a higher priority (lower id)
+:- action(train(ID),wait,T), at(ID,X,Y,T,Dir), #count { ID2,DX,DY : offset(Dir,DX,DY), at(ID2,X+DX,Y+DY,T,_), ID>ID2 } = 0.
+
 % check if a train has reached its goal
 reached(ID,T) :- goal(ID,T2), time(T), train(ID), T > T2.
 
 % do one action per timestep for each train that hasn't reached its goal
-1 {action(train(ID),A,T) : action_type(A)} 1 :- train(ID), time(T), not goal(ID,T), not reached(ID,T).
-
-% declaring which tracks are either straights or turns
-straight_or_turn(32800).
-straight_or_turn(1025).
-straight_or_turn(4608).
-straight_or_turn(16386).
-straight_or_turn(72).
-straight_or_turn(2064).
-
-% only generate move_forwards for straight or turn tracks
-%1 {action(train(ID),move_forwards,T)} 1 :- train(ID), time(T), not goal(ID,T), not reached(ID,T), at(ID,X,Y,T,Dir), cell((X,Y),C), straight_or_turn(C).
-
-% generate all moves for all other tracks
-%1 {action(train(ID),A,T) : action_type(A)} 1 :- train(ID), time(T), not goal(ID,T), not reached(ID,T), at(ID,X,Y,T,Dir), cell((X,Y),C), not straight_or_turn(C).
-
-% logic for waiting on any direction and track
-%move(ID,X,Y,T+1,Dir) :- action(train(ID),wait,T), at(ID,X,Y,T,Dir), not goal(ID,T), cell((X,Y),_), time(T).
-
-% only make it possible to wait if there is a train in front of you
-:- action(train(ID),wait,T), at(ID,X,Y,T,s), not at(_,X+1,Y,T,_).
-:- action(train(ID),wait,T), at(ID,X,Y,T,n), not at(_,X-1,Y,T,_).
-:- action(train(ID),wait,T), at(ID,X,Y,T,e), not at(_,Y+1,Y,T,_).
-:- action(train(ID),wait,T), at(ID,X,Y,T,w), not at(_,Y-1,Y,T,_).
+1 {action(train(ID),A,T) : action_type(A), A!=wait; action(train(ID),wait,T) : at(ID,X,Y,T,Dir), offset(Dir,DX,DY), at(_,X+DX,Y+DY,T,_)} 1 :- train(ID), time(T), not goal(ID,T), not reached(ID,T).
 
 % no moving straight on a turn
 :- at(ID,X,Y,T,Dir), cell((X,Y),4068), move(ID,X2,Y2,T+1,Dir).
@@ -58,7 +58,8 @@ straight_or_turn(2064).
 :- at(ID1,X1,Y1,T,_), at(ID2,X2,Y2,T,_), at(ID1,X2,Y2,T+1,_), at(ID2,X1,Y1,T+1,_), ID1!=ID2.
 
 % prefer the solution with the least possible actions
-%#minimize {1,ID,A,T : action(train(ID),A,T)}.
+#minimize {1,ID,A,T : action(train(ID),A,T)}.
+
 
 #show at/5.
 #show goal/2.
@@ -66,4 +67,6 @@ straight_or_turn(2064).
 %#show reached/2.
 %#show time/1.
 
-% did not pass collision 03 02, waiting rule should be modified
+% did not pass evade-01-002, evadeprio-01--02. waiting rule might be too rigid
+
+% you *can* wait even if unblocked, but it costs you 10 points:
