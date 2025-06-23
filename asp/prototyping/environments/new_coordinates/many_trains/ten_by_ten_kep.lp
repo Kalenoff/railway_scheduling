@@ -7,8 +7,8 @@ start(1, (8, 6), 0, west).
 end(1, (2, 1), 17).
 
 train(2).
-start(2, (5, 8), 0, north).
-end(2, (1, 6), 9).
+start(2, (5, 8), 1, north).
+end(2, (1, 6), 11).
 
 train(3).
 start(3, (6, 5), 0, north).
