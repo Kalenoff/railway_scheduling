@@ -1,7 +1,7 @@
 train(0).
 start(0, (0,0), 0, east).
-end(0, (0,6), 24).
-speed(0,3).
+end(0, (0,6), 13).
+speed(0,2).
 
 cell((0, 0), 1025).
 cell((0, 1), 1025).
@@ -16,17 +16,6 @@ cell_flat(Y * WIDTH + X, TYPE) :- cell((Y, X), TYPE), grid_size(_, WIDTH).
 
 start_flat(TRAIN, Y * WIDTH + X, DEPARTURE_TIME, DIRECTION) :- start(TRAIN, (Y, X), DEPARTURE_TIME, DIRECTION), grid_size(_, WIDTH).
 end_flat(TRAIN, Y * WIDTH + X, ARRIVAL_TIME) :- end(TRAIN, (Y, X), ARRIVAL_TIME), grid_size(_, WIDTH).
-
-% decreasing the search space by describing the routes as tightly as possible:
-
-action_moment(TRAIN, MOMENT) :- MOMENT = 0..MAX_TIME-1, 
-                                 end(TRAIN, (_, _), MAX_TIME), 
-                                 train(TRAIN), 
-                                 speed(TRAIN, MOM_PER_POS),
-                                 R = MOMENT - (MOMENT / MOM_PER_POS) * MOM_PER_POS,
-                                 R == 0.
-
-every_moment(TRAIN, 0..MAX_TIME-1) :- end(TRAIN, (_, _), MAX_TIME).
 
 path(north, POSITION, move_forward, north, POSITION - WIDTH) :- cell_flat(POSITION, 32800), grid_size(_, WIDTH), cell_flat(POSITION - WIDTH, TYPE), TYPE != 0.
 path(south, POSITION, move_forward, south, POSITION + WIDTH) :- cell_flat(POSITION, 32800), grid_size(_, WIDTH), cell_flat(POSITION + WIDTH, TYPE), TYPE != 0.
@@ -126,16 +115,43 @@ path(IN_DIR, IN_POS, wait, IN_DIR, IN_POS) :- path(IN_DIR, IN_POS, _, OUT_DIR, O
 
 path(OUT_DIR, OUT_POS, wait, OUT_DIR, OUT_POS) :- start_flat(_, OUT_POS, _, OUT_DIR).
 
+% action_moment(TRAIN, MOMENT) :- MOMENT = 0..MAX_TIME-1, 
+%                                 end(TRAIN, (_, _), MAX_TIME), 
+%                                 train(TRAIN), 
+%                                 speed(TRAIN, MOM_PER_POS),
+%                                 R = MOMENT - (MOMENT / MOM_PER_POS) * MOM_PER_POS,
+%                                 R == 0.
+
+
+action_moment(0, 2).
+action_moment(0, 4).
+action_moment(0, 6).
+action_moment(0, 8).
+action_moment(0, 10).
+action_moment(0, 12).
+action_moment(0, 14).
+action_moment(0, 17).
+
+every_moment(TRAIN, 0..MAX_TIME-1) :- end(TRAIN, (_, _), MAX_TIME).
+
+speed_range(TRAIN, CRUISER_SPEED..3) :- speed(TRAIN, CRUISER_SPEED), train(TRAIN).
+
 1 { action_transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) : path(IN_DIR, FROM_POS, ACTION, OUT_DIR, TO_POS) } 1 :- train(TRAIN),
                                                                                                                                          action_moment(TRAIN, MOMENT).
 
 intermediate_missing(TRAIN, MOMENT) :- every_moment(TRAIN, MOMENT), not action_moment(TRAIN, ACTION_MOMENT), MOMENT == ACTION_MOMENT.
 
-margin(TRAIN, 1..SPEED) :- speed(TRAIN, SPEED), train(TRAIN).
+% margin(TRAIN, 1..SPEED) :- speed(TRAIN, SPEED), train(TRAIN).
 
-laggy_transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- intermediate_missing(TRAIN, MOMENT),
-                                                                             action_transition(TRAIN, MOMENT-MARGIN, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR),
-                                                                             margin(TRAIN, MARGIN).
+laggy_transition(TRAIN, MISSING_MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- intermediate_missing(TRAIN, MISSING_MOMENT),
+                                                                              action_transition(TRAIN, ACTION_MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR),
+                                                                              action_moment(TRAIN, ACTION_MOMENT),
+                                                                              MISSING_MOMENT == ACTION_MOMENT - 2.                
+                                                                              
+laggy_transition(TRAIN, MISSING_MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- intermediate_missing(TRAIN, MISSING_MOMENT),
+                                                                              action_transition(TRAIN, ACTION_MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR),
+                                                                              action_moment(TRAIN, ACTION_MOMENT),
+                                                                              MISSING_MOMENT == ACTION_MOMENT - 1. 
 
 transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- action_transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR).
 
@@ -164,8 +180,7 @@ transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- action_t
 % creating auxiliary atoms to cater both for real and laggy transitions
 
 reached(TRAIN, MOMENT+1) :- transition(TRAIN,MOMENT,_,_,_,TO_POS,_),
-                            not laggy_transition(TRAIN,MOMENT+MARGIN,_,_,_,TO_POS,_),
-                            margin(TRAIN, MARGIN),
+                            not laggy_transition(TRAIN,MOMENT+1,_,_,_,TO_POS,_),
                             end_flat(TRAIN, ARRIVAL_POS, _),
                             TO_POS == ARRIVAL_POS.
 
@@ -220,16 +235,9 @@ action(TRAIN, MOMENT, ACTION) :- laggy_transition(TRAIN,MOMENT, _, _, ACTION, _,
 
 % displaying the output:
 
-% #show reached/2.
-% #show laggy_transition/7.
-% #show intermediate_missing/2.
+#show laggy_transition/7.
 % #show action/3.
-% #show transition/7.
+#show transition/7.
 % #show path/5.
-% #show is_junction/1.
-% #show end_flat/3.
-% #show grid_size/2.
-% #show cell_flat/2.
-% #show start_flat/4.
-% #show mid_transition/7.
-#show action_moment/2.
+% #show speed_range/2.
+% #show intermediate_missing/2.

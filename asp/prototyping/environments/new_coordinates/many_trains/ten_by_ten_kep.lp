@@ -1,18 +1,22 @@
-train(0).
+train(0). % Local
 start(0, (3, 8), 0, north).
-end(0, (6, 3), 12).
+end(0, (6, 3), 24).
+speed(0,2).
 
-train(1).
+train(1). % ICE
 start(1, (8, 6), 0, west).
 end(1, (2, 1), 17).
+speed(1,1).
 
-train(2).
+train(2). % Local
 start(2, (5, 8), 1, north).
-end(2, (1, 6), 11).
+end(2, (1, 6), 22).
+speed(2,2).
 
-train(3).
+train(3). % Shifter
 start(3, (6, 5), 0, north).
-end(3, (4, 7), 4).
+end(3, (4, 7), 12).
+speed(3,3).
 
 cell((9, 0), 0).
 cell((9, 1), 0).
