@@ -1,15 +1,17 @@
-train(0).
-start(0, (0,0), 0, east).
-end(0, (0,6), 24).
-speed(0,3).
+train(1).
+start(1, (1, 0), 0, east).
+end(1, (2, 2), 3).
+speed(1,1).
 
-cell((0, 0), 1025).
-cell((0, 1), 1025).
-cell((0, 2), 1025).
-cell((0, 3), 1025).
-cell((0, 4), 1025).
-cell((0, 5), 1025).
-cell((0, 6), 1025).
+cell((2,0,), 0).
+cell((2,1), 72).
+cell((2,2), 1025).
+cell((1,0), 1025).
+cell((1,1), 6672).
+cell((1,2), 0).
+cell((0,0), 0).
+cell((0,1), 16386).
+cell((0,2), 1025).
 
 grid_size(ROWS, COLUMNS) :- ROWS = #count{VAL : cell((VAL, _), _)}, COLUMNS = #count{VAL : cell((_, VAL), _)}.
 cell_flat(Y * WIDTH + X, TYPE) :- cell((Y, X), TYPE), grid_size(_, WIDTH).
@@ -221,10 +223,10 @@ action(TRAIN, MOMENT, ACTION) :- laggy_transition(TRAIN,MOMENT, _, _, ACTION, _,
 % displaying the output:
 
 % #show reached/2.
-% #show laggy_transition/7.
+#show laggy_transition/7.
 % #show intermediate_missing/2.
 % #show action/3.
-% #show transition/7.
+#show transition/7.
 % #show path/5.
 % #show is_junction/1.
 % #show end_flat/3.
@@ -232,4 +234,4 @@ action(TRAIN, MOMENT, ACTION) :- laggy_transition(TRAIN,MOMENT, _, _, ACTION, _,
 % #show cell_flat/2.
 % #show start_flat/4.
 % #show mid_transition/7.
-#show action_moment/2.
+% #show action_moment/2.

@@ -1,9 +1,9 @@
-answer = """laggy_transition(1,turn_right) real_transition(0,turn_right) laggy_transition(4,turn_right) real_transition(3,turn_right) laggy_transition(10,wait) real_transition(9,wait) laggy_transition(12,move_forward) real_transition(11,move_forward) laggy_transition(2,turn_right) real_transition(8,wait) laggy_transition(13,move_forward) real_transition(5,move_forward) real_transition(6,move_forward) real_transition(7,turn_left)"""
+answer = """real_transition(0,0,0,east,wait,0,east) real_transition(0,3,0,east,wait,0,east) real_transition(0,4,0,east,wait,0,east) real_transition(0,7,0,east,wait,0,east) real_transition(0,6,0,east,wait,0,east) real_transition(0,9,0,east,wait,0,east) real_transition(0,10,0,east,wait,0,east) real_transition(0,13,0,east,wait,0,east) real_transition(0,12,0,east,wait,0,east) real_transition(0,15,0,east,move_forward,1,east) real_transition(0,16,1,east,move_forward,2,east) real_transition(0,19,3,east,move_forward,4,east) real_transition(0,18,2,east,move_forward,3,east) real_transition(0,21,4,east,move_forward,5,east) real_transition(0,22,5,east,move_forward,6,east) real_transition(0,25,7,east,move_forward,8,east) real_transition(0,24,6,east,move_forward,7,east) real_transition(0,27,8,east,move_forward,9,east) laggy_transition(0,1,0,east,wait,0,east) laggy_transition(0,5,0,east,wait,0,east) laggy_transition(0,8,0,east,wait,0,east) laggy_transition(0,11,0,east,wait,0,east) laggy_transition(0,14,0,east,wait,0,east) laggy_transition(0,17,1,east,move_forward,2,east) laggy_transition(0,20,3,east,move_forward,4,east) laggy_transition(0,23,5,east,move_forward,6,east) laggy_transition(0,26,7,east,move_forward,8,east) laggy_transition(0,28,8,east,move_forward,9,east) laggy_transition(0,2,0,east,wait,0,east) laggy_transition(0,29,8,east,move_forward,9,east)"""
 
 answer_listed = answer.split(" ")
 
-# answer_listed_sorted = sorted(answer_listed, key=lambda x: int(x.split('(')[1].split(',')[1]))
+answer_listed_sorted = sorted(answer_listed, key=lambda x: int(x.split('(')[1].split(',')[1]))
 
-answer_listed_sorted = sorted(answer_listed, key=lambda x: int(x.split('(')[1].split(',')[0]))
+# answer_listed_sorted = sorted(answer_listed, key=lambda x: int(x.split('(')[1].split(',')[0]))
 
 print(answer_listed_sorted)
