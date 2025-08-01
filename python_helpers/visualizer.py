@@ -3,19 +3,29 @@ import matplotlib.image as mpimg
 import re
 import os
 
-input_env = """cell((0, 0), 1025).
-cell((0, 1), 1025). 
-cell((0, 2), 1025). 
-cell((0, 3), 1025). 
-cell((0, 4), 1025). 
-cell((0, 5), 1025). 
-cell((0, 6), 1025). 
-cell((0, 7), 1025). 
-cell((0, 8), 1025). 
-cell((0, 9), 1025).
-"""
+input_env = """cell((6,0), 0).
+cell((6,1), 32800).
+cell((6,2), 72).
+cell((5,0), 72).
+cell((5,1), 33825).
+cell((5,2), 4608).
+cell((4,0), 32800).
+cell((4,1), 32800).
+cell((4,2), 0).
+cell((3,0), 16386).
+cell((3,1), 33825).
+cell((3,2), 2064).
+cell((2,0), 0).
+cell((2,1), 32800).
+cell((2,2), 32800).
+cell((1,0), 72).
+cell((1,1), 33825).
+cell((1,2), 4608).
+cell((0,0), 4608).
+cell((0,1), 32800).
+cell((0,2), 0)."""
 
-input_trans = """real_transition(0,0,0,east,wait,0,east) real_transition(0,3,0,east,wait,0,east) real_transition(0,4,0,east,wait,0,east) real_transition(0,7,0,east,wait,0,east) real_transition(0,6,0,east,wait,0,east) real_transition(0,9,0,east,wait,0,east) real_transition(0,10,0,east,wait,0,east) real_transition(0,13,0,east,move_forward,1,east) real_transition(0,12,0,east,wait,0,east) real_transition(0,15,1,east,move_forward,2,east) real_transition(0,16,2,east,move_forward,3,east) real_transition(0,19,4,east,move_forward,5,east) real_transition(0,18,3,east,move_forward,4,east) real_transition(0,21,5,east,move_forward,6,east) real_transition(0,22,6,east,move_forward,7,east) real_transition(0,25,8,east,move_forward,9,east) real_transition(0,24,7,east,move_forward,8,east) laggy_transition(0,1,0,east,wait,0,east) laggy_transition(0,5,0,east,wait,0,east) laggy_transition(0,8,0,east,wait,0,east) laggy_transition(0,11,0,east,wait,0,east) laggy_transition(0,14,0,east,move_forward,1,east) laggy_transition(0,17,2,east,move_forward,3,east) laggy_transition(0,20,4,east,move_forward,5,east) laggy_transition(0,23,6,east,move_forward,7,east) laggy_transition(0,26,8,east,move_forward,9,east) laggy_transition(0,2,0,east,wait,0,east) laggy_transition(0,27,8,east,move_forward,9,east)"""
+input_trans = """transition(1,0,1,south,move_forward,4,south) transition(1,1,4,south,move_forward,7,south) transition(1,2,7,south,move_forward,10,south) transition(1,3,10,south,move_forward,13,south) transition(1,4,13,south,move_forward,16,south) transition(1,5,16,south,move_forward,19,south) transition(2,0,0,east,move_forward,3,south) transition(2,1,3,south,move_forward,4,east) transition(2,2,4,east,move_forward,5,east) transition(2,3,5,east,move_forward,8,south) transition(2,4,8,south,move_forward,11,south) transition(2,5,11,south,move_forward,10,west) transition(2,6,10,west,move_forward,9,west) transition(2,7,9,west,move_forward,12,south) transition(2,8,12,south,move_forward,15,south) transition(2,9,15,south,move_forward,16,east) transition(2,10,16,east,move_forward,17,east) transition(2,11,17,east,move_forward,20,south)"""
 
 
 def dummy_transition_adder(raw_trans: str) -> str:
@@ -44,6 +54,44 @@ def dummy_transition_adder(raw_trans: str) -> str:
     return return_string
 
 
+def per_train_adder(transitions: str) -> dict:
+    """
+    Splits transitions by train ID and returns a dictionary where:
+    - keys are train IDs (as strings)
+    - values are lists of transitions for that train (sorted by moment)
+    """
+    if not transitions.strip():
+        return {}
+    
+    transitions_listed = [t.strip() for t in transitions.split(" ") if t.strip()]
+    train_dict = {}
+    
+    for transition in transitions_listed:
+
+        match = re.match(r'transition\((\d+)', transition)
+        if not match:
+            continue
+            
+        train_id = match.group(1)
+        
+        if train_id not in train_dict:
+            train_dict[train_id] = []
+        train_dict[train_id].append(transition)
+
+    for train_id in train_dict:
+        # Sort by moment
+        train_dict[train_id].sort(key=lambda x: int(re.search(r'transition\(\d+,(\d+)', x).group(1)))
+        # Join into single string
+        train_trans_str = ' '.join(train_dict[train_id])
+        # Apply dummy_transition_adder
+        train_dict[train_id] = dummy_transition_adder(train_trans_str)
+    
+    joined_per_train = [''.join(x) for x in train_dict.values()]
+    joined_total = ' '.join(joined_per_train)
+
+    return joined_total
+
+
 def grid_extractor(env: str):
     env_listed_cleared = [x.replace('\n', '').strip() for x in env.split('.') if x.strip()]
     pos_type_map = {}
@@ -61,15 +109,15 @@ def grid_extractor(env: str):
 
 def onedto2d(flat_pos: int, grid_width: int) -> tuple:
 
-    y = flat_pos // (grid_width + 1)
-    x = flat_pos % (grid_width + 1)
+    y = flat_pos // grid_width
+    x = flat_pos % grid_width
 
     return (y, x)
 
 
 def transition_parser(transitions: str, grid_width: int)->list:
 
-    transitions_extended = dummy_transition_adder(transitions)
+    transitions_extended = per_train_adder(transitions)
 
     transitions_listed = transitions_extended.split(" ")
 
@@ -77,8 +125,9 @@ def transition_parser(transitions: str, grid_width: int)->list:
 
     for transition in transitions_listed:
 
-        pattern = r'transition\(([^,]+),([^,]+),([^,]+),([^,]+)'
-        match = re.search(pattern, transition)
+        pattern = r'transition\((\d+),(\d+),(\d+),([^,]+)'
+        # pattern = r'transition\(([^,]+),([^,]+),([^,]+),([^,]+)'
+        match = re.match(pattern, transition)
 
         transition_data = {'train': match.group(1),
                            'moment': match.group(2),
@@ -96,14 +145,19 @@ def plot_grid_with_images(environment: str, transitions_raw: str, grid_width: in
     pos_type_map = grid_extractor(environment)
     parsed_transitions = transition_parser(transitions_raw, grid_width)
 
+    # Extract unique train IDs
+    train_ids = sorted(set(transition['train'] for transition in parsed_transitions))
+
+    # Assign a color to each train ID
+    colors = ['red', 'blue', 'yellow', 'purple', 'orange', 'pink', 'brown', 'gray', 'cyan']
+    train_color_map = {train_id: colors[i % len(colors)] for i, train_id in enumerate(train_ids)}
+
     y_coords = sorted(set(y for y, x in pos_type_map.keys()))
     x_coords = sorted(set(x for y, x in pos_type_map.keys()))
-
     moments = sorted(set(transition['moment'] for transition in parsed_transitions))
 
     for moment in moments:
         fig, ax = plt.subplots()
-
         for x in x_coords:
             for dx in [-0.5, 0.5]:
                 ax.axvline(x=x + dx, color='black', linestyle='-')
@@ -124,7 +178,9 @@ def plot_grid_with_images(environment: str, transitions_raw: str, grid_width: in
         for transition in parsed_transitions:
             if transition['moment'] == moment:
                 pos = transition['pos']
-                ax.plot(pos[1], pos[0], 'ro', markersize=10)
+                train_id = transition['train']
+                color = train_color_map[train_id]
+                ax.plot(pos[1], pos[0], marker='o', markersize=10, color=color)
 
         ax.set_xlim(min(x_coords) - 0.5, max(x_coords) + 0.5)
         ax.set_ylim(max(y_coords) + 0.5, min(y_coords) - 0.5)
@@ -133,13 +189,10 @@ def plot_grid_with_images(environment: str, transitions_raw: str, grid_width: in
         ax.set_yticks(y_coords)
         ax.set_aspect('equal', adjustable='box')
         ax.set_title(f"Moment: {moment}")
-        
+
         output_path = os.path.join(r"C:\Users\roman\Documents\Code\ASP\railway_scheduling\python_helpers\visualization_outputs", f"moment_{moment}.png")
         plt.savefig(output_path)
         plt.close()
 
 
-plot_grid_with_images(input_env, input_trans, 10)
-
-
-
+plot_grid_with_images(input_env, input_trans, 3)

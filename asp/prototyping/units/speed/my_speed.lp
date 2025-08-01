@@ -1,17 +1,34 @@
 train(1).
-start(1, (1, 0), 0, east).
-end(1, (2, 2), 3).
+start(1, (0, 1), 0, south).
+end(1, (6, 1), 6).
 speed(1,1).
 
-cell((2,0,), 0).
-cell((2,1), 72).
-cell((2,2), 1025).
-cell((1,0), 1025).
-cell((1,1), 6672).
-cell((1,2), 0).
-cell((0,0), 0).
-cell((0,1), 16386).
-cell((0,2), 1025).
+train(2).
+start(2, (0, 0), 0, east).
+end(2, (6, 2), 12).
+speed(2,1).
+
+cell((6,0), 0).
+cell((6,1), 32800).
+cell((6,2), 72).
+cell((5,0), 72).
+cell((5,1), 33825).
+cell((5,2), 4608).
+cell((4,0), 32800).
+cell((4,1), 32800).
+cell((4,2), 0).
+cell((3,0), 16386).
+cell((3,1), 33825).
+cell((3,2), 2064).
+cell((2,0), 0).
+cell((2,1), 32800).
+cell((2,2), 32800).
+cell((1,0), 72).
+cell((1,1), 33825).
+cell((1,2), 4608).
+cell((0,0), 4608).
+cell((0,1), 32800).
+cell((0,2), 0).
 
 grid_size(ROWS, COLUMNS) :- ROWS = #count{VAL : cell((VAL, _), _)}, COLUMNS = #count{VAL : cell((_, VAL), _)}.
 cell_flat(Y * WIDTH + X, TYPE) :- cell((Y, X), TYPE), grid_size(_, WIDTH).

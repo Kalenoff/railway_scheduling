@@ -1,18 +1,123 @@
-train(0).
-start(0, (0,0), 0, east).
-end(0, (0,9), 31).
-speed(0,3).
+% train(0). % Local
+% start(0, (3, 8), 0, north).
+% end(0, (6, 3), 24).
+% speed(0,2).
 
-cell((0, 0), 1025). %0,1,2,3
-cell((0, 1), 1025). %4,5,6
-cell((0, 2), 1025). %7,8,9
-cell((0, 3), 1025). %10,11,12
-cell((0, 4), 1025). %13,14,15
-cell((0, 5), 1025). %16,17,18
-cell((0, 6), 1025). %19,20,21
-cell((0, 7), 1025). %22,23,24
-cell((0, 8), 1025). %25,26,27
-cell((0, 9), 1025). %28,29,30,31
+train(1). % ICE
+start(1, (8, 6), 0, west).
+end(1, (2, 1), 23).
+speed(1,1).
+
+% train(2). % Local
+% start(2, (5, 8), 1, north).
+% end(2, (1, 6), 22).
+% speed(2,2).
+
+% train(3). % Shifter
+% start(3, (6, 5), 0, north).
+% end(3, (4, 7), 12).
+% speed(3,3).
+
+cell((9, 0), 0).
+cell((9, 1), 0).
+cell((9, 2), 0).
+cell((9, 3), 0).
+cell((9, 4), 0).
+cell((9, 5), 0).
+cell((9, 6), 0).
+cell((9, 7), 0).
+cell((9, 8), 0).
+cell((9, 9), 0).
+cell((8, 0), 0).
+cell((8, 1), 72).
+cell((8, 2), 1025).
+cell((8, 3), 2064).
+cell((8, 4), 0).
+cell((8, 5), 72).
+cell((8, 6), 1025).
+cell((8, 7), 1025).
+cell((8, 8), 2064).
+cell((8, 9), 0).
+cell((7, 0), 0).
+cell((7, 1), 32800).
+cell((7, 2), 0).
+cell((7, 3), 49186).
+cell((7, 4), 1025).
+cell((7, 5), 37408).
+cell((7, 6), 0).
+cell((7, 7), 0).
+cell((7, 8), 32800).
+cell((7, 9), 0).
+cell((6, 0), 0).
+cell((6, 1), 16386).
+cell((6, 2), 2064).
+cell((6, 3), 32800).
+cell((6, 4), 0).
+cell((6, 5), 16386).
+cell((6, 6), 2064).
+cell((6, 7), 0).
+cell((6, 8), 32800).
+cell((6, 9), 0).
+cell((5, 0), 0).
+cell((5, 1), 0).
+cell((5, 2), 16386).
+cell((5, 3), 34864).
+cell((5, 4), 0).
+cell((5, 5), 0).
+cell((5, 6), 32872).
+cell((5, 7), 1025).
+cell((5, 8), 4608).
+cell((5, 9), 0).
+cell((4, 0), 0).
+cell((4, 1), 72).
+cell((4, 2), 1025).
+cell((4, 3), 37408).
+cell((4, 4), 0).
+cell((4, 5), 72).
+cell((4, 6), 20994).
+cell((4, 7), 1025).
+cell((4, 8), 2064).
+cell((4, 9), 0).
+cell((3, 0), 0).
+cell((3, 1), 32800).
+cell((3, 2), 0).
+cell((3, 3), 49186).
+cell((3, 4), 1025).
+cell((3, 5), 34864).
+cell((3, 6), 0).
+cell((3, 7), 0).
+cell((3, 8), 32800).
+cell((3, 9), 0).
+cell((2, 0), 0).
+cell((2, 1), 32800).
+cell((2, 2), 0).
+cell((2, 3), 32800).
+cell((2, 4), 0).
+cell((2, 5), 32800).
+cell((2, 6), 0).
+cell((2, 7), 0).
+cell((2, 8), 32800).
+cell((2, 9), 0).
+cell((1, 0), 0).
+cell((1, 1), 16386).
+cell((1, 2), 1025).
+cell((1, 3), 4608).
+cell((1, 4), 0).
+cell((1, 5), 16386).
+cell((1, 6), 1025).
+cell((1, 7), 1025).
+cell((1, 8), 4608).
+cell((1, 9), 0).
+cell((0, 0), 0).
+cell((0, 1), 0).
+cell((0, 2), 0).
+cell((0, 3), 0).
+cell((0, 4), 0).
+cell((0, 5), 0).
+cell((0, 6), 0).
+cell((0, 7), 0).
+cell((0, 8), 0).
+cell((0, 9), 0).
 
 grid_size(ROWS, COLUMNS) :- ROWS = #count{VAL : cell((VAL, _), _)}, COLUMNS = #count{VAL : cell((_, VAL), _)}.
 cell_flat(Y * WIDTH + X, TYPE) :- cell((Y, X), TYPE), grid_size(_, WIDTH).
@@ -134,7 +239,8 @@ action_moment(TRAIN, 3) :- speed(TRAIN, 1), action_moment(TRAIN, 0).
 
 action_moment(TRAIN, 5) :- speed(TRAIN, 1), action_moment(TRAIN, 3).
 
-action_moment(TRAIN, NEXT_ACTION_MOMENT) :- speed(TRAIN, 1), action_moment(TRAIN, PREV_ACT_MOMENT),
+action_moment(TRAIN, NEXT_ACTION_MOMENT) :- speed(TRAIN, 1), 
+                                            action_moment(TRAIN, PREV_ACT_MOMENT),
                                             max_time(TRAIN, MAX_TIME),
                                             PREV_ACT_MOMENT >= 5,
                                             braking_time(TRAIN, BRAKING_TIME),
@@ -168,8 +274,8 @@ action_moment(TRAIN, NEXT_ACTION_MOMENT) :- speed(TRAIN, 2),
                                             action_moment(TRAIN, PREV_ACT_MOMENT),
                                             max_time(TRAIN, MAX_TIME),
                                             PREV_ACT_MOMENT >= 3,
-                                            NEXT_ACTION_MOMENT = PREV_ACT_MOMENT + 2,
                                             braking_time(TRAIN, BRAKING_TIME),
+                                            NEXT_ACTION_MOMENT = PREV_ACT_MOMENT + 2,
                                             NEXT_ACTION_MOMENT < MAX_TIME - BRAKING_TIME + 1.
 
 start_braking(TRAIN, ACTION_MOMENT) :- max_time(TRAIN, MAX_TIME),
@@ -190,17 +296,12 @@ braking_time(TRAIN, 3) :- speed(TRAIN, 2).
 
 % for the freight train:
 
-action_moment(TRAIN, 4) :- speed(TRAIN, 3), action_moment(TRAIN, 0).
-
-action_moment(TRAIN, NEXT_ACTION_MOMENT) :- speed(TRAIN, 3), 
-                                            action_moment(TRAIN, PREV_ACT_MOMENT),
-                                            max_time(TRAIN, MAX_TIME),
-                                            PREV_ACT_MOMENT >= 4,
-                                            NEXT_ACTION_MOMENT = PREV_ACT_MOMENT + 3,
-                                            braking_time(TRAIN, BRAKING_TIME),
-                                            NEXT_ACTION_MOMENT < MAX_TIME - BRAKING_TIME + 1.
-
-braking_time(TRAIN, 4) :- speed(TRAIN, 3).                     
+action_moment(TRAIN, MOMENT) :-  speed(TRAIN, 3),
+                                 MOMENT = 0..MAX_TIME-1, 
+                                 end(TRAIN, (_, _), MAX_TIME), 
+                                 train(TRAIN),
+                                 R = MOMENT - (MOMENT / 3) * 3,
+                                 R == 0.
 
 % creating real transitions from action momemnts:
 
@@ -222,7 +323,7 @@ laggy_transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- in
 
 :- real_transition(TRAIN, MOMENT, _, _, _, TO_POS, _), 
    real_transition(TRAIN, MOMENT+1, FROM_POS, _, _, _, _),
-  FROM_POS != TO_POS.
+   FROM_POS != TO_POS.
 
 :- real_transition(TRAIN, MOMENT, _, _, _, _, TO_DIR), 
    real_transition(TRAIN, MOMENT+1, _, IN_DIR, _, _, _),
@@ -242,7 +343,7 @@ laggy_transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- in
 
 lookback(1;2;3).
 
-%reached(TRAIN, MOMENT+1) :- real_transition(TRAIN,MOMENT,_,_,_,TO_POS,_), 
+% reached(TRAIN, MOMENT+1) :- real_transition(TRAIN,MOMENT,_,_,_,TO_POS,_), 
 %                            not laggy_transition(TRAIN,MOMENT+LOOKBACK,_,_,_,TO_POS,_),
 %                            lookback(LOOKBACK),                        
 %                            end_flat(TRAIN, ARRIVAL_POS, _),
@@ -300,17 +401,17 @@ reached(TRAIN, MOMENT+1) :- laggy_transition(TRAIN,MOMENT,_,_,_,TO_POS,_),
 % displaying the output:
 
 % #show reached/2.
-%#show laggy_transition/7.
+#show laggy_transition/7.
 % #show intermediate_missing/2.
 % #show action/3.
-% #show real_transition/7.
+#show real_transition/7.
 % #show path/5.
 % #show is_junction/1.
 % #show end_flat/3.
 % #show grid_size/2.
 % #show cell_flat/2.
 % #show start_flat/4.
-#show action_moment/2.
+% #show action_moment/2.
 % #show every_moment/2.
 % #show max_time/2.
 % #show start_braking/2.
