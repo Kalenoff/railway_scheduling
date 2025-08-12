@@ -153,8 +153,8 @@ intermediate_missing(TRAIN, MOMENT) :- every_moment(TRAIN, MOMENT), not action_m
 margin(TRAIN, 1..SPEED) :- speed(TRAIN, SPEED), train(TRAIN).
 
 laggy_transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- intermediate_missing(TRAIN, MOMENT),
-                                                                             action_transition(TRAIN, MOMENT-MARGIN, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR),
-                                                                             margin(TRAIN, MARGIN).
+                                                                              action_transition(TRAIN, MOMENT-MARGIN, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR),
+                                                                              margin(TRAIN, MARGIN).
 
 transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- action_transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR).
 

@@ -1,30 +1,25 @@
-% train(1).
-train(2).
-start(1, (0, 0), 0, east).
-start(2, (2, 0), 0, east).
-end(1, (2, 0), 9).
-end(2, (2, 5), 10).
-speed(1, 1).
-speed(2, 2).
+start(0, (0,0), 0, east).
+end(0, (0,15), 20).
+speed(0, 1).
+train(0).
 
-cell((2,0), 1025).
-cell((2,1), 1025).
-cell((2,2), 3089).
-cell((2,3), 1025).
-cell((2,4), 1025).
-cell((2,5), 1025).
-cell((1,0), 0).
-cell((1,1), 0).
-cell((1,2), 32800).
-cell((1,3), 0).
-cell((1,4), 0).
-cell((1,5), 0).
-cell((0,0), 1025).
-cell((0,1), 1025).
-cell((0,2), 4608).
-cell((0,3), 0).
-cell((0,4), 0).
-cell((0,5), 0).
+cell((0, 0), 1025).
+cell((0, 1), 1025).
+cell((0, 2), 1025).
+cell((0, 3), 1025).
+cell((0, 4), 1025).
+cell((0, 5), 38505).
+cell((0, 6), 1025).
+cell((0, 7), 1025).
+cell((0, 8), 1025).
+cell((0, 9), 1025).
+cell((0, 10), 1025).
+cell((0, 11), 38505).
+cell((0, 12), 1025).
+cell((0, 13), 1025).
+cell((0, 14), 38505).
+cell((0, 15), 1025).
+cell((0, 16), 1025).
 
 cell_flat(Y * WIDTH + X, TYPE) :- cell((Y, X), TYPE), grid_size(_, WIDTH).
 
@@ -214,6 +209,7 @@ fixed_speed_stretch(TRAIN, (POS1,POS2)) :- undirected_edge(POS1,POS2), train(TRA
 fixed_speed_stretch(TRAIN, (POS1,POS2)) :- undirected_edge(POS1,POS2), train(TRAIN), start_flat(TRAIN, POS2, _, _).
 fixed_speed_stretch(TRAIN, (POS1,POS2)) :- undirected_edge(POS1,POS2), train(TRAIN), end_flat(TRAIN, POS2, _).
 fixed_speed_stretch(TRAIN, (POS1,POS2)) :- undirected_edge(POS1,POS2), train(TRAIN), end_flat(TRAIN, POS1, _).
+fixed_speed_stretch(TRAIN, (POS1,POS2)) :- undirected_edge(POS1,POS2), train(TRAIN), |POS1-POS2| < 2.
 
 speed_signal(drop_speed; keep_speed).
 
@@ -221,7 +217,22 @@ speed_signal(drop_speed; keep_speed).
 
 speed_control(TRAIN, (FIRST, SECOND), keep_speed) :- fixed_speed_stretch(TRAIN, (FIRST, SECOND)).
 
-irrelevant_edge() :- ...
+local_action_moment((FIRST,SECOND), TRAIN, LOCAL_ACTION_MOMENT) :- speed_control(TRAIN, (FIRST, SECOND), keep_speed), 
+                                                                   LENGTH = SECOND - FIRST,
+                                                                   speed(TRAIN, SPEED),
+                                                                   UPPER_BOUND = LENGTH * SPEED - SPEED,
+                                                                   LOCAL_ACTION_MOMENT = 0..UPPER_BOUND,
+                                                                   LOCAL_ACTION_MOMENT \ SPEED = 0.
+
+local_action_moment((FIRST,SECOND), TRAIN, LOCAL_ACTION_MOMENT) :- speed_control(TRAIN, (FIRST, SECOND), drop_speed), 
+                                                                   LENGTH = SECOND - FIRST,
+                                                                   speed(TRAIN, CRUISER_SPEED),
+                                                                   CRUISER_SPEED = SPEED + 1,
+                                                                   UPPER_BOUND = LENGTH * SPEED - SPEED,
+                                                                   LOCAL_ACTION_MOMENT = 0..UPPER_BOUND,
+                                                                   LOCAL_ACTION_MOMENT \ SPEED = 0.
+
+
 
 % #show is_junction/2.
 % #show junction_between/2.
@@ -231,8 +242,5 @@ irrelevant_edge() :- ...
 % #show edge_flat/2.
 % #show varying_speed_stretch/2.
 % #show fixed_speed_stretch/2.
-#show speed_control/3.
-% #show local_action_moment/3.
-% #show action_moment/2.
-% #show real_transition/7.
-% #show laggy_transition/7.
+% #show speed_control/3.
+#show local_action_moment/3.
