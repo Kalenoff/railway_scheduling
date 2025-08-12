@@ -42,7 +42,7 @@ action_moment(TRAIN, MOMENT) :- MOMENT = 0..MAX_TIME-1,
                                  end(TRAIN, (_, _), MAX_TIME), 
                                  train(TRAIN), 
                                  speed(TRAIN, MOM_PER_POS),
-                                 R = MOMENT - (MOMENT / MOM_PER_POS) * MOM_PER_POS,
+                                 R = MOMENT \ MOM_PER_POS,
                                  R == 0.
 
 every_moment(TRAIN, 0..MAX_TIME-1) :- end(TRAIN, (_, _), MAX_TIME).

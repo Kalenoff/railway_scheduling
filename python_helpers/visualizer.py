@@ -3,29 +3,27 @@ import matplotlib.image as mpimg
 import re
 import os
 
-input_env = """cell((6,0), 0).
-cell((6,1), 32800).
-cell((6,2), 72).
-cell((5,0), 72).
-cell((5,1), 33825).
-cell((5,2), 4608).
-cell((4,0), 32800).
-cell((4,1), 32800).
-cell((4,2), 0).
-cell((3,0), 16386).
-cell((3,1), 33825).
-cell((3,2), 2064).
-cell((2,0), 0).
-cell((2,1), 32800).
-cell((2,2), 32800).
-cell((1,0), 72).
-cell((1,1), 33825).
-cell((1,2), 4608).
-cell((0,0), 4608).
-cell((0,1), 32800).
-cell((0,2), 0)."""
+input_env = """cell((2,0), 1025).
+cell((2,1), 1025).
+cell((2,2), 3089).
+cell((2,3), 1025).
+cell((2,4), 1025).
+cell((2,5), 1025).
+cell((1,0), 0).
+cell((1,1), 0).
+cell((1,2), 32800).
+cell((1,3), 0).
+cell((1,4), 0).
+cell((1,5), 0).
+cell((0,0), 1025).
+cell((0,1), 1025).
+cell((0,2), 4608).
+cell((0,3), 0).
+cell((0,4), 0).
+cell((0,5), 0).
+"""
 
-input_trans = """transition(1,0,1,south,move_forward,4,south) transition(1,1,4,south,move_forward,7,south) transition(1,2,7,south,move_forward,10,south) transition(1,3,10,south,move_forward,13,south) transition(1,4,13,south,move_forward,16,south) transition(1,5,16,south,move_forward,19,south) transition(2,0,0,east,move_forward,3,south) transition(2,1,3,south,move_forward,4,east) transition(2,2,4,east,move_forward,5,east) transition(2,3,5,east,move_forward,8,south) transition(2,4,8,south,move_forward,11,south) transition(2,5,11,south,move_forward,10,west) transition(2,6,10,west,move_forward,9,west) transition(2,7,9,west,move_forward,12,south) transition(2,8,12,south,move_forward,15,south) transition(2,9,15,south,move_forward,16,east) transition(2,10,16,east,move_forward,17,east) transition(2,11,17,east,move_forward,20,south)"""
+input_trans = """transition(1,0,1,east,move_forward,2,east) transition(1,1,2,east,move_forward,8,south) transition(1,2,8,south,move_forward,14,south) transition(1,3,14,south,move_forward,13,west) transition(1,4,13,west,move_forward,12,west) transition(1,5,13,west,move_forward,12,west)"""
 
 
 def dummy_transition_adder(raw_trans: str) -> str:
@@ -195,4 +193,4 @@ def plot_grid_with_images(environment: str, transitions_raw: str, grid_width: in
         plt.close()
 
 
-plot_grid_with_images(input_env, input_trans, 3)
+plot_grid_with_images(input_env, input_trans, 6)

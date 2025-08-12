@@ -1,6 +1,8 @@
+% 7 cells of type 1025 horizontally
+
 train(0).
 start(0, (0,0), 0, east).
-end(0, (0,10), 17).
+end(0, (0,10), 16).
 speed(0,1).
 
 cell((0, 0), 1025).%0,1,2
@@ -131,8 +133,6 @@ path(OUT_DIR, OUT_POS, wait, OUT_DIR, OUT_POS) :- start_flat(_, OUT_POS, _, OUT_
 
 action_moment(TRAIN, 0) :- speed(TRAIN, _).
 
-% the recursive logic of acceleration and cruiser stretch for the 
-
 action_moment(TRAIN, 3) :- speed(TRAIN, 1), action_moment(TRAIN, 0).
 
 action_moment(TRAIN, 5) :- speed(TRAIN, 1), action_moment(TRAIN, 3).
@@ -157,49 +157,6 @@ start_braking(TRAIN, ACTION_MOMENT) :- max_time(TRAIN, MAX_TIME),
 action_moment(TRAIN, NEXT_ACTION_MOMENT) :- start_braking(TRAIN, LAST_CRUISER_MOMENT),
                                             speed(TRAIN, 1),
                                             NEXT_ACTION_MOMENT = LAST_CRUISER_MOMENT + 2.
-
-%action_moment(TRAIN, SECOND_SLOWER_MOMENT) :- speed(TRAIN, 1),
-%                                             start_braking(TRAIN, LAST_CRUISER_MOMENT),
-%                                              action_moment(TRAIN, FIRST_SLOWER_MOMENT),
-%                                              FIRST_SLOWER_MOMENT == LAST_CRUISER_MOMENT + 2,
-%                                              SECOND_SLOWER_MOMENT = FIRST_SLOWER_MOMENT + 3.
-
-% for the local train:
-
-action_moment(TRAIN, 3) :- speed(TRAIN, 2), action_moment(TRAIN, 0).
-
-action_moment(TRAIN, NEXT_ACTION_MOMENT) :- speed(TRAIN, 2), 
-                                            action_moment(TRAIN, PREV_ACT_MOMENT),
-                                            max_time(TRAIN, MAX_TIME),
-                                            PREV_ACT_MOMENT >= 3,
-                                            braking_time(TRAIN, BRAKING_TIME),
-                                            NEXT_ACTION_MOMENT = PREV_ACT_MOMENT + 2,
-                                            NEXT_ACTION_MOMENT < MAX_TIME - BRAKING_TIME + 1.
-
-start_braking(TRAIN, ACTION_MOMENT) :- max_time(TRAIN, MAX_TIME),
-                                       MAX_TIME \ 2 == 0,
-                                       speed(TRAIN, 2),
-                                       braking_time(TRAIN, BRAKING_TIME),
-                                       action_moment(TRAIN, ACTION_MOMENT), 
-                                       ACTION_MOMENT == MAX_TIME - BRAKING_TIME.
-
-start_braking(TRAIN, ACTION_MOMENT) :- max_time(TRAIN, MAX_TIME),
-                                       speed(TRAIN, 2),
-                                       MAX_TIME \ 2 != 0,
-                                       braking_time(TRAIN, BRAKING_TIME),
-                                       action_moment(TRAIN, ACTION_MOMENT), 
-                                       ACTION_MOMENT == MAX_TIME - BRAKING_TIME - 1.
-
-braking_time(TRAIN, 3) :- speed(TRAIN, 2).
-
-% for the freight train:
-
-action_moment(TRAIN, MOMENT) :-  speed(TRAIN, 3),
-                                 MOMENT = 0..MAX_TIME-1, 
-                                 end(TRAIN, (_, _), MAX_TIME), 
-                                 train(TRAIN),
-                                 R = MOMENT - (MOMENT / 3) * 3,
-                                 R == 0.
 
 % creating real transitions from action momemnts:
 
@@ -240,12 +197,6 @@ laggy_transition(TRAIN, MOMENT, FROM_POS, IN_DIR, ACTION, TO_POS, OUT_DIR) :- in
 % creating auxiliary atoms to cater both for real and laggy transitions
 
 lookback(1;2;3).
-
-% reached(TRAIN, MOMENT+1) :- real_transition(TRAIN,MOMENT,_,_,_,TO_POS,_), 
-%                            not laggy_transition(TRAIN,MOMENT+LOOKBACK,_,_,_,TO_POS,_),
-%                            lookback(LOOKBACK),                        
-%                            end_flat(TRAIN, ARRIVAL_POS, _),
-%                            TO_POS == ARRIVAL_POS.
 
 reached(TRAIN, MOMENT+1) :- laggy_transition(TRAIN,MOMENT,_,_,_,TO_POS,_),
                             not laggy_transition(TRAIN,MOMENT+1,_,_,_,TO_POS,_),

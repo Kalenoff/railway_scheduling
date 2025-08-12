@@ -1,33 +1,14 @@
-import matplotlib.pyplot as plt
+def clean_transitions(input_string):
+    # Split the input string into individual lines
+    lines = input_string.split('\n')
 
-def draw_inverted_grid(rows, cols):
-    fig, ax = plt.subplots(figsize=(cols, rows))
-    ax.set_xlim(0, cols)
-    ax.set_ylim(0, rows)
+    # Remove "laggy_" and "real_" from each line
+    cleaned_lines = [line.replace('laggy_transition', 'transition').replace('real_transition', 'transition') for line in lines]
 
-    # Draw grid
-    for x in range(cols + 1):
-        ax.axvline(x, color='gray', linewidth=1)
-    for y in range(rows + 1):
-        ax.axhline(y, color='gray', linewidth=1)
+    return cleaned_lines
 
-    # Label cells with (Y, X)
-    for y in range(rows):
-        for x in range(cols):
-            ax.text(x + 0.5, y + 0.5, f'({y},{x})', ha='center', va='center', fontsize=10)
+input_string = """real_transition(1,0,1,east,move_forward,2,east) real_transition(1,1,2,east,move_forward,8,south) real_transition(1,2,8,south,move_forward,14,south) real_transition(1,3,14,south,move_forward,13,west) real_transition(1,4,13,west,move_forward,12,west) laggy_transition(1,5,13,west,move_forward,12,west)"""
 
-    # Invert Y-axis to match top-left origin
-    ax.invert_yaxis()
-
-    # Turn off ticks
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-    # Keep grid square
-    ax.set_aspect('equal')
-
-    plt.title("Inverted Grid: Origin at Top-Left, Y ↓, X →")
-    plt.show()
-
-# Example: 5 rows (Y), 6 columns (X)
-draw_inverted_grid(5, 6)
+cleaned_transitions = clean_transitions(input_string)
+for transition in cleaned_transitions:
+    print(transition)
